@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy 3D Grid Monitor</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #050805;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Optimized for small window spaces */
+        #radarContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 460px;
+            padding: 10px;
+            box-sizing: border-box;
+            gap: 15px;
+        }
+        canvas {
+            border: 2px solid #004400;
+            background: #040a04;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+        #logPanel {
+            width: 100%;
+            height: 150px;
+            border-top: 1px dashed #004400;
+            padding-top: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        #logStream {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 20px;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+        #saveBtn {
+            width: 100%;
+            max-width: 280px;
+            background-color: #050d05;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        #saveBtn:hover {
+            background-color: #00ff00;
+            color: #050805;
+        }
+    </style>
+</head>
+<body>
+
+<div id="radarContainer">
+    <canvas id="radarCanvas" width="400" height="400"></canvas>
+    <div id="logPanel">
+        <pre id="logStream"></pre>
+    </div>
+    <button id="saveBtn" onclick="downloadLog()">💾 Save History Log</button>
+</div>
+
+<script>
+const canvas = document.getElementById('radarCanvas');
+const ctx = canvas.getContext('2d');
+const logStream = document.getElementById('logStream');
+
+// Matrix Bounds
+const width = 400;
+const height = 400;
+
+// 3D Matrix Variables
+let gridYOffset = 0; // Moves the scan line along the Z-axis (depth)
+const scanSpeed = 1.2; // Speed of the 3D grid line scan
+
+let activeBlips = [];
+let fileHistory = [];
+let displayLines = [];
+
+const RUNES = ['᚛', '᚜', '⚔', '彡', '⚙', '❖', '☸', '⚰', '☩', '☠', '☣', '☢', '🔱', '👁', '▲', '▼', '◆', '❖', '⬡'];
+
+const FACTIONS = [
+    { label: 'ORC_MAW', color: '#ff4444', shape: 'diamond' },
+    { label: 'DRAKE_V', color: '#ffbb00', shape: 'chevron' },
+    { label: 'ELF_VNE', color: '#44ff44', shape: 'circle' },
+    { label: 'WIGHT_Z', color: '#b555ff', shape: 'square' }
+];
+
+// Helper: Generates exactly 10 random unicode characters
+function makeTenRunes() {
+    let s = '';
+    for (let i = 0; i < 10; i++) {
+        s += RUNES[Math.floor(Math.random() * RUNES.length)];
+    }
+    return s;
+}
+
+// Logic: Handles text routing to interface screen and arrays
+function createLog(faction, isBogey) {
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const tenRunes = makeTenRunes();
+    
+    let plainText = "";
+    let htmlText = "";
+
+    if (isBogey) {
+        plainText = `[${timeStr}] ${tenRunes} SYS:BOGEY_FLS`;
+        htmlText = `[${timeStr}] <span style="letter-spacing:1px;">${tenRunes}</span> <span style="color:#778877;">BOGEY</span>`;
+    } else {
+        plainText = `[${timeStr}] ${tenRunes} TRK:${faction.label}`;
+        htmlText = `[${timeStr}] <span style="letter-spacing:1px;">${tenRunes}</span> <span style="color:${faction.color};">${faction.label}</span>`;
+    }
+
+    fileHistory.push(plainText);
+    displayLines.push(htmlText);
+    if (displayLines.length > 6) {
+        displayLines.shift();
+    }
+
+    logStream.innerHTML = displayLines.join('\n');
+}
+
+// System Core Timing Routine (0-20s interval, true/false check)
+function processTacticalLogic() {
+    const targetInterval = Math.random() * 20000;
+
+    setTimeout(() => {
+        const coinFlip = Math.random() < 0.5;
+
+        if (coinFlip) {
+            const pickedFaction = FACTIONS[Math.floor(Math.random() * FACTIONS.length)];
+            
+            // Randomly maps coordinates directly onto our 3D grid layout coordinates
+            // X goes left to right (-100 to 100), Z goes front to back (50 to 250 depth)
+            const mapX = (Math.random() * 160) - 80;
+            const mapZ = (Math.random() * 180) + 60;
+
+            activeBlips.push({
+                worldX: mapX,
+                worldZ: mapZ,
+                faction: pickedFaction,
+                intensity: 0,
+                detected: false,
+                logged: false
+            });
+        } else {
+            createLog(null, true);
+        }
+
+        processTacticalLogic();
+    }, targetInterval);
+}
+
+function downloadLog() {
+    if (fileHistory.length === 0) {
+        alert("Log history is empty.");
+        return;
+    }
+    const blob = new Blob([fileHistory.join('\r\n')], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'radar_log.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// Projection: Converts 3D world spaces into flat 2D canvas pixel coordinates
+function project3D(worldX, worldZ) {
+    const vanishingY = 80;       // Center height horizon point
+    const perspectiveFactor = 280; // FOV camera depth scale factor
+
+    // Perspective Division
+    const screenX = (worldX * perspectiveFactor) / worldZ + (width / 2);
+    const screenY = (vanishingY * perspectiveFactor) / worldZ + (height / 2);
+    
+    return { x: screenX, y: screenY, scale: perspectiveFactor / worldZ };
+}
+
+function drawShape(x, y, size, shape) {
+    ctx.beginPath();
+    if (shape === 'circle') {
+        ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+    } else if (shape === 'square') {
+        ctx.rect(x - size * 2, y - size * 2, size * 4, size * 4);
+    } else if (shape === 'diamond') {
+        ctx.moveTo(x, y - size * 2.5);
+        ctx.lineTo(x + size * 2.5, y);
+        ctx.lineTo(x, y + size * 2.5);
+        ctx.lineTo(x - size * 2.5, y);
+        ctx.closePath();
+    } else if (shape === 'chevron') {
+        ctx.moveTo(x - size * 2.5, y + size * 2);
+        ctx.lineTo(x, y - size * 2);
+        ctx.lineTo(x + size * 2.5, y + size * 2);
+    }
+    ctx.fill();
+}
+
+function runRadarLoop() {
+    // Semi-transparent redraw gives the trailing fade effect
+    ctx.fillStyle = 'rgba(5, 10, 5, 0.18)';
+    ctx.fillRect(0, 0, width, height);
+
+    // 1. Render Perspective 3D Grid Lines
+    ctx.strokeStyle = '#002200';
+    ctx.lineWidth = 1;
+
+    // Longitudinal floor lines shooting towards horizon vanishing point
+    for (let x = -100; x <= 100; x += 25) {
+        let pStart = project3D(x, 50);
+        let pEnd = project3D(x, 260);
+        ctx.beginPath();
+        ctx.moveTo(pStart.x, pStart.y);
+        ctx.lineTo(pEnd.x, pEnd.y);
+        ctx.stroke();
+    }
+
+    // Horizontal latitude depth lines
+    for (let z = 50; z <= 260; z += 30) {
+        let pLeft = project3D(-100, z);
+        let pRight = project3D(100, z);
+        ctx.beginPath();
+        ctx.moveTo(pLeft.x, pLeft.y);
+        ctx.lineTo(pRight.x, pRight.y);
+        ctx.stroke();
+    }
+
+    // 2. Compute and Draw Moving Z-Axis Sweep Line
+    gridYOffset = (gridYOffset + scanSpeed);
+    if (gridYOffset > 210) gridYOffset = 0; // Loops scanning plane front to back
+    const currentSweepZ = 50 + gridYOffset;
+
+    let sweepLeft = project3D(-100, currentSweepZ);
+    let sweepRight = project3D(100, currentSweepZ);
+
+    ctx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(sweepLeft.x, sweepLeft.y);
+    ctx.lineTo(sweepRight.x, sweepRight.y);
+    ctx.stroke();
+
+    // 3. Process 3D Blips Intersection Matrix
+    for (let i = activeBlips.length - 1; i >= 0; i--) {
+        let b = activeBlips[i];
+        
+        // Checks collision when the depth sweep passes over the blip's Z-position
+        let zDiff = currentSweepZ - b.worldZ;
+
+        if (zDiff >= 0 && zDiff < 6) {
+            b.intensity = 1.0;
+            b.detected = true;
+            if (!b.logged) {
+                createLog(b.faction, false);
+                b.logged = true;
+            }
+        } else {
+            b.intensity -= 0.003; // Smooth persistence decay fade
+        }
+
+        if (b.intensity <= 0) {
+            if (b.detected) {
+                activeBlips.splice(i, 1);
+                continue;
+            }
+            b.intensity = 0;
+        }
+
+        if (b.detected) {
+            // Projects 3D position to screen pixels
+            let screenPos = project3D(b.worldX, b.worldZ);
+
+            ctx.fillStyle = b.faction.color;
+            ctx.globalAlpha = b.intensity;
+            
+            // Scaled marker sizing so things further away look smaller
+            drawShape(screenPos.x, screenPos.y, screenPos.scale, b.faction.shape);
+        }
+    }
+
+    ctx.globalAlpha = 1.0;
+    requestAnimationFrame(runRadarLoop);
+}
+
+// Safe Sequential Initialization Call
+processTacticalLogic();
+runRadarLoop();
+</script>
+
+</body>
+</html>
