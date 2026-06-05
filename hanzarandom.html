@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expanded Kanji Matrix</title>
+    <title>Random Hanja 4-Character Matrix</title>
     <style>
         * {
             margin: 0;
@@ -12,106 +12,92 @@
         }
 
         :root {
-            --theme-glow: rgba(0, 229, 255, 0.4);
-            --theme-color: #00e5ff;
+            --theme-glow: rgba(255, 110, 0, 0.25);
+            --theme-color: #ff6e00;
         }
 
         body {
-            background: radial-gradient(circle, #111118 0%, #050508 100%);
+            background: radial-gradient(circle, #0f0a0a 0%, #050303 100%);
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
-            transition: background 1s ease;
+            font-family: 'Noto Serif KR', 'Noto Serif JP', 'Georgia', serif;
         }
 
-        /* Ambient background glow that matches the current theme */
+        /* Ambient background glow */
         .ambient-glow {
             position: absolute;
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             background: var(--theme-glow);
-            filter: blur(120px);
+            filter: blur(140px);
             border-radius: 50%;
             z-index: 1;
             pointer-events: none;
-            transition: all 1s ease;
+            transition: all 1.5s ease;
         }
 
         .card {
             position: relative;
             z-index: 2;
-            background: rgba(15, 15, 25, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 50px 80px;
-            border-radius: 32px;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+            background: rgba(18, 12, 12, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 60px 80px;
+            border-radius: 4px;
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(20px);
             text-align: center;
-            min-width: 380px;
+            min-width: 520px;
+            border-left: 4px solid var(--theme-color);
+            transition: border-color 1.5s ease;
         }
 
-        #category-display {
-            font-size: 0.85rem;
+        #label-display {
+            font-size: 0.8rem;
             color: var(--theme-color);
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 15px;
-            opacity: 0.6;
-            transition: color 0.5s ease;
+            letter-spacing: 6px;
+            margin-bottom: 25px;
+            opacity: 0.7;
+            transition: color 1.5s ease;
         }
 
-        #kanji-display {
-            font-size: 9rem;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+        #string-display {
+            font-size: 5.5rem;
+            font-weight: 500;
+            color: #f5f5f7;
+            letter-spacing: 12px;
+            padding-left: 12px; 
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4),
                          0 0 40px var(--theme-glow);
-            min-width: 180px;
-            min-height: 180px;
-            line-height: 180px;
             display: inline-block;
-            animation: pulse-glow 1s infinite ease-in-out;
-            transition: text-shadow 0.5s ease;
+            white-space: nowrap;
+            animation: pulse-glow 3s infinite ease-in-out;
         }
 
-        #meaning-display {
-            margin-top: 25px;
-            font-size: 1.4rem;
-            font-weight: 300;
-            color: #e2e2ec;
-            letter-spacing: 2px;
-        }
-
-        #counter {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.2);
-            letter-spacing: 1px;
-        }
-
+        /* 3-Second Animation Cycle */
         @keyframes pulse-glow {
             0% {
-                transform: scale(0.95);
-                opacity: 0.2;
-                filter: blur(4px);
+                transform: scale(0.97);
+                opacity: 0;
+                filter: blur(10px);
             }
-            20% {
-                transform: scale(1.03);
+            12% {
+                transform: scale(1.02);
                 opacity: 1;
                 filter: blur(0px);
             }
-            85% {
+            88% {
                 transform: scale(1);
                 opacity: 1;
+                filter: blur(0px);
             }
             100% {
-                transform: scale(0.97);
+                transform: scale(0.98);
                 opacity: 0;
+                filter: blur(6px);
             }
         }
     </style>
@@ -121,160 +107,70 @@
     <div class="ambient-glow" id="ambient"></div>
 
     <div class="card">
-        <div id="category-display">LOADING</div>
-        <div id="kanji-display">卍</div>
-        <div id="meaning-display">Matrix Initializing</div>
+        <div id="label-display">Hanja Phrase Oracle</div>
+        <div id="string-display">四字成語</div>
     </div>
 
-    <div id="counter">Matrix Node: 1 / 100</div>
-
     <script>
-        // Expanded 100-Character Matrix with Theme Metadata
-        const kanjiMatrix = [
-            // 1. THE ELEMENTS & COSMOS (Cyan/Blue Glow)
-            { char: "天", meaning: "Heaven / Sky", cat: "Cosmos", color: "rgba(0, 191, 255, 0.3)", accent: "#00bfff" },
-            { char: "地", meaning: "Earth / Ground", cat: "Cosmos", color: "rgba(139, 69, 19, 0.3)", accent: "#cd853f" },
-            { char: "玄", meaning: "Mysterious / Dark Universe", cat: "Cosmos", color: "rgba(75, 0, 130, 0.3)", accent: "#9370db" },
-            { char: "宇", meaning: "Space / Universe", cat: "Cosmos", color: "rgba(0, 0, 255, 0.2)", accent: "#1e90ff" },
-            { char: "宙", meaning: "Time / Cosmos", cat: "Cosmos", color: "rgba(0, 0, 255, 0.2)", accent: "#1e90ff" },
-            { char: "日", meaning: "Sun / Day", cat: "Elements", color: "rgba(255, 69, 0, 0.3)", accent: "#ff4500" },
-            { char: "月", meaning: "Moon / Month", cat: "Elements", color: "rgba(240, 248, 255, 0.3)", accent: "#f0f8ff" },
-            { char: "星", meaning: "Star", cat: "Elements", color: "rgba(255, 215, 0, 0.3)", accent: "#ffd700" },
-            { char: "火", meaning: "Fire", cat: "Elements", color: "rgba(255, 0, 0, 0.3)", accent: "#ff3333" },
-            { char: "水", meaning: "Water", cat: "Elements", color: "rgba(0, 128, 255, 0.3)", accent: "#3399ff" },
-            { char: "木", meaning: "Wood / Tree", cat: "Elements", color: "rgba(0, 200, 100, 0.2)", accent: "#00cc66" },
-            { char: "金", meaning: "Gold / Metal", cat: "Elements", color: "rgba(212, 175, 55, 0.3)", accent: "#d4af37" },
-            { char: "土", meaning: "Soil / Earth", cat: "Elements", color: "rgba(160, 82, 45, 0.3)", accent: "#a0522d" },
-            { char: "風", meaning: "Wind", cat: "Elements", color: "rgba(0, 250, 154, 0.2)", accent: "#00fa9a" },
-            { char: "雷", meaning: "Thunder", cat: "Elements", color: "rgba(255, 255, 0, 0.3)", accent: "#ffff00" },
-            { char: "電", meaning: "Lightning / Electricity", cat: "Elements", color: "rgba(138, 43, 226, 0.3)", accent: "#8a2be2" },
-            { char: "光", meaning: "Light", cat: "Elements", color: "rgba(255, 255, 240, 0.4)", accent: "#ffffff" },
-            { char: "闇", meaning: "Darkness", cat: "Elements", color: "rgba(40, 40, 50, 0.4)", accent: "#777788" },
-            { char: "陰", meaning: "Yin / Shadow", cat: "Elements", color: "rgba(70, 80, 95, 0.3)", accent: "#8899aa" },
-            { char: "陽", meaning: "Yang / Sunshine", cat: "Elements", color: "rgba(255, 140, 0, 0.3)", accent: "#ff8c00" },
-
-            // 2. NATURAL PHENOMENA (Green/Teal Glow)
-            { char: "山", meaning: "Mountain", cat: "Nature", color: "rgba(46, 139, 87, 0.2)", accent: "#2e8b57" },
-            { char: "川", meaning: "River", cat: "Nature", color: "rgba(30, 144, 255, 0.2)", accent: "#1e90ff" },
-            { char: "海", meaning: "Ocean / Sea", cat: "Nature", color: "rgba(0, 0, 128, 0.3)", accent: "#4169e1" },
-            { char: "空", meaning: "Sky / Emptiness", cat: "Nature", color: "rgba(135, 206, 235, 0.3)", accent: "#87ceeb" },
-            { char: "森", meaning: "Forest", cat: "Nature", color: "rgba(0, 100, 0, 0.3)", accent: "#228b22" },
-            { char: "雨", meaning: "Rain", cat: "Nature", color: "rgba(70, 130, 180, 0.3)", accent: "#4682b4" },
-            { char: "雪", meaning: "Snow", cat: "Nature", color: "rgba(240, 255, 255, 0.4)", accent: "#e0ffff" },
-            { char: "雲", meaning: "Cloud", cat: "Nature", color: "rgba(176, 196, 222, 0.3)", accent: "#b0c4de" },
-            { char: "霧", meaning: "Fog / Mist", cat: "Nature", color: "rgba(192, 192, 192, 0.2)", accent: "#d3d3d3" },
-            { char: "氷", meaning: "Ice", cat: "Nature", color: "rgba(0, 255, 255, 0.3)", accent: "#a8e4ef" },
-            { char: "嵐", meaning: "Storm", cat: "Nature", color: "rgba(47, 79, 79, 0.4)", accent: "#5f9ea0" },
-            { char: "岩", meaning: "Rock / Crag", cat: "Nature", color: "rgba(112, 128, 144, 0.3)", accent: "#708090" },
-            { char: "炎", meaning: "Flame", cat: "Nature", color: "rgba(255, 0, 0, 0.4)", accent: "#ff4500" },
-            { char: "泉", meaning: "Spring / Fountain", cat: "Nature", color: "rgba(0, 255, 255, 0.2)", accent: "#00ffff" },
-            { char: "石", meaning: "Stone", cat: "Nature", color: "rgba(128, 128, 128, 0.3)", accent: "#aaaaaa" },
-            { char: "花", meaning: "Flower / Blossom", cat: "Nature", color: "rgba(255, 105, 180, 0.3)", accent: "#ff69b4" },
-            { char: "葉", meaning: "Leaf", cat: "Nature", color: "rgba(50, 205, 50, 0.2)", accent: "#32cd32" },
-            { char: "竹", meaning: "Bamboo", cat: "Nature", color: "rgba(34, 139, 34, 0.3)", accent: "#00ff7f" },
-            { char: "桜", meaning: "Cherry Blossom", cat: "Nature", color: "rgba(255, 192, 203, 0.4)", accent: "#ffb7c5" },
-            { char: "龍", meaning: "Dragon", cat: "Mythology", color: "rgba(148, 0, 211, 0.3)", accent: "#ba55d3" },
-
-            // 3. HUMAN SPIRIT & EMOTION (Red/Pink/Purple Glow)
-            { char: "心", meaning: "Heart / Mind", cat: "Spirit", color: "rgba(220, 20, 60, 0.3)", accent: "#dc143c" },
-            { char: "情", meaning: "Emotion / Passion", cat: "Spirit", color: "rgba(255, 20, 147, 0.3)", accent: "#ff1493" },
-            { char: "愛", meaning: "Love", cat: "Spirit", color: "rgba(255, 182, 193, 0.4)", accent: "#ff66a3" },
-            { char: "絆", meaning: "Bonds / Connection", cat: "Spirit", color: "rgba(255, 127, 80, 0.3)", accent: "#ff7f50" },
-            { char: "魂", meaning: "Soul / Spirit", cat: "Spirit", color: "rgba(186, 85, 211, 0.3)", accent: "#da70d6" },
-            { char: "魄", meaning: "Vigor / Ghostly Soul", cat: "Spirit", color: "rgba(72, 61, 139, 0.3)", accent: "#483d8b" },
-            { char: "志", meaning: "Will / Ambition", cat: "Spirit", color: "rgba(0, 128, 128, 0.3)", accent: "#008080" },
-            { char: "念", meaning: "Thought / Desire", cat: "Spirit", color: "rgba(123, 104, 238, 0.3)", accent: "#7b68ee" },
-            { char: "望", meaning: "Hope / Wish", cat: "Spirit", color: "rgba(255, 215, 0, 0.2)", accent: "#ffeb3b" },
-            { char: "夢", meaning: "Dream", cat: "Spirit", color: "rgba(238, 130, 238, 0.3)", accent: "#ee82ee" },
-            { char: "誠", meaning: "Sincerity / Truth", cat: "Spirit", color: "rgba(70, 130, 180, 0.3)", accent: "#4682b4" },
-            { char: "信", meaning: "Trust / Faith", cat: "Spirit", color: "rgba(30, 144, 255, 0.3)", accent: "#1e90ff" },
-            { char: "義", meaning: "Justice / Morality", cat: "Spirit", color: "rgba(218, 165, 32, 0.3)", accent: "#daa520" },
-            { char: "仁", meaning: "Benevolence", cat: "Spirit", color: "rgba(46, 139, 87, 0.3)", accent: "#2e8b57" },
-            { char: "礼", meaning: "Respect / Courtesy", cat: "Spirit", color: "rgba(102, 51, 153, 0.3)", accent: "#663399" },
-            { char: "智", meaning: "Wisdom / Intellect", cat: "Spirit", color: "rgba(0, 206, 209, 0.3)", accent: "#00ced1" },
-            { char: "勇", meaning: "Courage / Bravery", cat: "Spirit", color: "rgba(255, 69, 0, 0.3)", accent: "#ff4500" },
-            { char: "忠", meaning: "Loyalty", cat: "Spirit", color: "rgba(178, 34, 34, 0.3)", accent: "#b22222" },
-            { char: "孝", meaning: "Filial Piety", cat: "Spirit", color: "rgba(205, 133, 63, 0.3)", accent: "#cd853f" },
-            { char: "悌", meaning: "Brotherly Love", cat: "Spirit", color: "rgba(244, 164, 96, 0.3)", accent: "#f4a460" },
-
-            // 4. THE WARRIOR & FORCE (Crimson/Amber Glow)
-            { char: "力", meaning: "Power / Strength", cat: "Force", color: "rgba(255, 0, 0, 0.3)", accent: "#ff1111" },
-            { char: "武", meaning: "Martial Arts / Military", cat: "Force", color: "rgba(105, 105, 105, 0.4)", accent: "#999999" },
-            { char: "闘", meaning: "Fight / Combat", cat: "Force", color: "rgba(255, 69, 0, 0.4)", accent: "#ff4500" },
-            { char: "戦", meaning: "War / Battle", cat: "Force", color: "rgba(128, 0, 0, 0.4)", accent: "#800000" },
-            { char: "勝", meaning: "Victory / Win", cat: "Force", color: "rgba(255, 215, 0, 0.4)", accent: "#ffd700" },
-            { char: "破", meaning: "Destroy / Break", cat: "Force", color: "rgba(255, 0, 128, 0.3)", accent: "#ff007f" },
-            { char: "斬", meaning: "Slay / Cut", cat: "Force", color: "rgba(0, 255, 255, 0.3)", accent: "#e0ffff" },
-            { char: "剣", meaning: "Sword / Blade", cat: "Force", color: "rgba(192, 192, 192, 0.4)", accent: "#ffffff" },
-            { char: "盾", meaning: "Shield", cat: "Force", color: "rgba(112, 128, 144, 0.4)", accent: "#708090" },
-            { char: "極", meaning: "Extreme / Ultimate", cat: "Force", color: "rgba(148, 0, 211, 0.4)", accent: "#9400d3" },
-            { char: "覇", meaning: "Supremacy / Lordship", cat: "Force", color: "rgba(75, 0, 130, 0.4)", accent: "#4b0082" },
-            { char: "威", meaning: "Majesty / Power", cat: "Force", color: "rgba(218, 165, 32, 0.3)", accent: "#daa520" },
-            { char: "猛", meaning: "Fierce / Ferocious", cat: "Force", color: "rgba(255, 140, 0, 0.3)", accent: "#ff8c00" },
-            { char: "剛", meaning: "Sturdy / Unyielding", cat: "Force", color: "rgba(139, 69, 19, 0.3)", accent: "#8b4513" },
-            { char: "速", meaning: "Speed / Fast", cat: "Force", color: "rgba(0, 250, 154, 0.3)", accent: "#00fa9a" },
-            { char: "影", meaning: "Shadow / Silhouette", cat: "Force", color: "rgba(20, 20, 30, 0.5)", accent: "#555566" },
-            { char: "忍", meaning: "Endure / Ninja", cat: "Force", color: "rgba(139, 0, 0, 0.4)", accent: "#8b0000" },
-            { char: "隠", meaning: "Conceal / Hide", cat: "Force", color: "rgba(47, 79, 79, 0.3)", accent: "#2f4f4f" },
-            { char: "殺", meaning: "Kill", cat: "Force", color: "rgba(255, 0, 50, 0.4)", accent: "#ff0033" },
-            { char: "生", meaning: "Life / Birth", cat: "Force", color: "rgba(50, 205, 50, 0.3)", accent: "#32cd32" },
-
-            // 5. PHILOSOPHY & ZEN (Deep Violet/Golden Glow)
-            { char: "道", meaning: "The Way / Path", cat: "Philosophy", color: "rgba(218, 165, 32, 0.3)", accent: "#daa520" },
-            { char: "禅", meaning: "Zen Meditation", cat: "Philosophy", color: "rgba(147, 112, 219, 0.3)", accent: "#9370db" },
-            { char: "和", meaning: "Harmony / Peace", cat: "Philosophy", color: "rgba(0, 206, 209, 0.3)", accent: "#00ced1" },
-            { char: "静", meaning: "Quiet / Calm", cat: "Philosophy", color: "rgba(70, 130, 180, 0.3)", accent: "#4682b4" },
-            { char: "空", meaning: "Void / Nothingness", cat: "Philosophy", color: "rgba(230, 230, 250, 0.2)", accent: "#e6e6fa" },
-            { char: "無", meaning: "Nothingness / Mu", cat: "Philosophy", color: "rgba(50, 50, 50, 0.4)", accent: "#666666" },
-            { char: "真", meaning: "Truth / Reality", cat: "Philosophy", color: "rgba(0, 191, 255, 0.3)", accent: "#00bfff" },
-            { char: "幻", meaning: "Illusion / Vision", cat: "Philosophy", color: "rgba(255, 0, 255, 0.2)", accent: "#ff00ff" },
-            { char: "理", meaning: "Reason / Logic", cat: "Philosophy", color: "rgba(100, 149, 237, 0.3)", accent: "#6495ed" },
-            { char: "法", meaning: "Law / Dharma", cat: "Philosophy", color: "rgba(123, 104, 238, 0.3)", accent: "#7b68ee" },
-            { char: "悟", meaning: "Enlightenment", cat: "Philosophy", color: "rgba(255, 223, 0, 0.4)", accent: "#ffdf00" },
-            { char: "迷", meaning: "Delusion / Lost", cat: "Philosophy", color: "rgba(105, 105, 105, 0.3)", accent: "#888888" },
-            { char: "永", meaning: "Eternity / Forever", cat: "Philosophy", color: "rgba(0, 255, 127, 0.2)", accent: "#00ff7f" },
-            { char: "時", meaning: "Time", cat: "Philosophy", color: "rgba(210, 105, 30, 0.2)", accent: "#d2691e" },
-            { char: "変", meaning: "Change / Transform", cat: "Philosophy", color: "rgba(255, 20, 147, 0.2)", accent: "#ff1493" },
-            { char: "定", meaning: "Fix / Absolute", cat: "Philosophy", color: "rgba(70, 130, 180, 0.3)", accent: "#4682b4" },
-            { char: "美", meaning: "Beauty", cat: "Philosophy", color: "rgba(255, 192, 203, 0.3)", accent: "#ffc0cb" },
-            { char: "醜", meaning: "Ugliness", cat: "Philosophy", color: "rgba(85, 107, 47, 0.3)", accent: "#556b2f" },
-            { char: "明", meaning: "Bright / Clarity", cat: "Philosophy", color: "rgba(255, 255, 224, 0.4)", accent: "#ffffe0" },
-            { char: "暗", meaning: "Dark / Obscure", cat: "Philosophy", color: "rgba(25., 25, 35, 0.4)", accent: "#444455" }
+        const stringEl = document.getElementById("string-display");
+        
+        // Verified 100% clean character pool array
+        const hanjaPool = [
+            "天", "地", "玄", "黃", "宇", "宙", "洪", "荒", "日", "月", "盈", "仄", "辰", "宿", "列", "張",
+            "寒", "來", "暑", "往", "秋", "收", "冬", "藏", "閏", "餘", "成", "歲", "律", "呂", "調", "陽",
+            "雲", "騰", "致", "雨", "露", "結", "爲", "霜", "金", "生", "麗", "水", "玉", "出", "崑", "岡",
+            "劍", "號", "巨", "闕", "珠", "稱", "夜", "光", "果", "珍", "李", "柰", "菜", "重", "芥", "薑",
+            "海", "鹹", "河", "淡", "鱗", "潛", "羽", "翔", "龍", "師", "火", "帝", "鳥", "官", "人", "皇",
+            "始", "製", "文", "字", "乃", "服", "衣", "裳", "推", "位", "讓", "國", "有", "虞", "陶", "唐",
+            "弔", "民", "伐", "罪", "周", "發", "殷", "湯", "坐", "朝", "問", "道", "垂", "拱", "平", "章",
+            "愛", "育", "黎", "首", "臣", "伏", "戎", "羌", "遐", "邇", "壹", "體", "率", "賓", "歸", "王",
+            "鳴", "鳳", "在", "樹", "白", "駒", "食", "場", "化", "被", "草", "木", "賴", "及", "萬", "方",
+            "恭", "惟", "鞠", "養", "豈", "敢", "毀", "傷", "女", "慕", "貞", "潔", "男", "效", "才", "良", 
+            "知", "過", "必", "改", "得", "能", "莫", "忘", "罔", "談", "彼", "短", "靡", "恃", "己", "長", 
+            "信", "使", "可", "覆", "器", "欲", "難", "量", "墨", "悲", "絲", "染", "詩", "讚", "羔", "羊", 
+            "景", "行", "維", "賢", "克", "念", "作", "聖", "德", "建", "名", "立", "形", "端", "表", "正", 
+            "空", "谷", "傳", "聲", "虛", "堂", "習", "聽", "禍", "因", "惡", "積", "福", "緣", "善", "慶", 
+            "尺", "璧", "非", "寶", "寸", "陰", "是", "競", "資", "父", "事", "君", "曰", "嚴", "與", "敬", 
+            "孝", "當", "竭", "力", "忠", "則", "盡", "命", "臨", "深", "履", "薄", "夙", "興", "溫", "凊"
         ];
 
-        const kanjiEl = document.getElementById("kanji-display");
-        const meaningEl = document.getElementById("meaning-display");
-        const catEl = document.getElementById("category-display");
-        const counterEl = document.getElementById("counter");
-        const ambientEl = document.getElementById("ambient");
-        
-        let index = 0;
-
-        function updateMatrix() {
-            const current = kanjiMatrix[index];
-
-            // 1. Inject content
-            kanjiEl.textContent = current.char;
-            meaningEl.textContent = current.meaning;
-            catEl.textContent = current.cat;
-            counterEl.textContent = `Matrix Node: ${index + 1} / ${kanjiMatrix.length}`;
-
-            // 2. Adjust dynamic color profiles
-            document.documentElement.style.setProperty('--theme-glow', current.color);
-            document.documentElement.style.setProperty('--theme-color', current.accent);
-
-            // 3. Reset the 1-second CSS pulse layout engine
-            kanjiEl.style.animation = 'none';
-            kanjiEl.offsetHeight; // Reflow reset
-            kanjiEl.style.animation = 'pulse-glow 1s infinite ease-in-out';
-
-            // 4. Advance index loop
-            index = (index + 1) % kanjiMatrix.length;
+        function generateHanjaString() {
+            let result = "";
+            for (let i = 0; i < 4; i++) {
+                result += hanjaPool[Math.floor(Math.random() * hanjaPool.length)];
+            }
+            return result;
         }
 
-        // Initialize immediately and bind interval
+        function generateWarmZenColor() {
+            const themes = [
+                { glow: "rgba(255, 70, 0, 0.25)", accent: "#ff4500" },   // Crimson Fire
+                { glow: "rgba(212, 175, 55, 0.25)", accent: "#d4af37" }, // Imperial Gold
+                { glow: "rgba(0, 150, 136, 0.25)", accent: "#009688" },  // Deep Jade
+                { glow: "rgba(110, 60, 180, 0.25)", accent: "#9370db" }, // Mystic Violet
+                { glow: "rgba(140, 140, 160, 0.25)", accent: "#a0a0b0" } // Ink Shadow
+            ];
+            return themes[Math.floor(Math.random() * themes.length)];
+        }
+
+        function updateMatrix() {
+            // 1. Generate new string
+            stringEl.textContent = generateHanjaString();
+
+            // 2. Refresh theme colors
+            const nextColor = generateWarmZenColor();
+            document.documentElement.style.setProperty('--theme-glow', nextColor.glow);
+            document.documentElement.style.setProperty('--theme-color', nextColor.accent);
+
+            // 3. Reset CSS layout animation block flawlessly
+            stringEl.style.animation = 'none';
+            stringEl.offsetHeight; 
+            stringEl.style.animation = 'pulse-glow 3s infinite ease-in-out';
+        }
+
+        // Run engine immediately and lock interval to exactly 3000ms
         updateMatrix();
-        setInterval(updateMatrix, 1000);
+        setInterval(updateMatrix, 3000);
     </script>
 </body>
 </html>
