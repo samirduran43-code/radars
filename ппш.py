@@ -117,7 +117,7 @@ class RadarOverlay:
             t_mid = np.linspace(0, 0.20, int(sample_rate * 0.20), endpoint=False)
             
             # Base variables seeded by hash
-            base_freq = 400 + (int(blip_hash[0:2], 16) * 2)    
+            base_freq = 460 + (int(blip_hash[0:2], 16) * 2)    
             mod_freq = 30 + (int(blip_hash[2:4], 16) % 50)     
             mod_index = 20 + (int(blip_hash[4:6], 16) % 30)    
             
@@ -146,7 +146,7 @@ class RadarOverlay:
             full_signal[:fade_in_len] *= np.linspace(0.0, 1.0, fade_in_len)
             full_signal[-fade_out_len:] *= np.linspace(1.0, 0.0, fade_out_len)
             
-            sd.play(full_signal * 0.28, sample_rate)
+            sd.play(full_signal * 0.18, sample_rate)
         except Exception as e:
             print(f"Audio Error: {e}")
 
