@@ -193,7 +193,7 @@ class RadarOverlay:
         
         self.root.after(10000, self.hide_overlay)
         
-        next_delay_ms = int(random.uniform(0.0, 300.0) * 1000)
+        next_delay_ms = int(random.uniform(0.0, 160.0) * 1000)
         self.root.after(next_delay_ms, self.update_radar)
 
 if __name__ == "__main__":
