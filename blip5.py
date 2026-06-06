@@ -146,7 +146,7 @@ class RadarOverlay:
             full_signal[:fade_in_len] *= np.linspace(0.0, 1.0, fade_in_len)
             full_signal[-fade_out_len:] *= np.linspace(1.0, 0.0, fade_out_len)
             
-            sd.play(full_signal * 0.18, sample_rate)
+            sd.play(full_signal * 0.28, sample_rate)
         except Exception as e:
             print(f"Audio Error: {e}")
 
@@ -193,7 +193,7 @@ class RadarOverlay:
         
         self.root.after(10000, self.hide_overlay)
         
-        next_delay_ms = int(random.uniform(0.0, 120.0) * 1000)
+        next_delay_ms = int(random.uniform(0.0, 300.0) * 1000)
         self.root.after(next_delay_ms, self.update_radar)
 
 if __name__ == "__main__":
