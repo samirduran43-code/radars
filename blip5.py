@@ -117,7 +117,7 @@ class RadarOverlay:
             t_mid = np.linspace(0, 0.20, int(sample_rate * 0.20), endpoint=False)
             
             # Base variables seeded by hash
-            base_freq = 450 + (int(blip_hash[0:2], 16) * 2)    
+            base_freq = 400 + (int(blip_hash[0:2], 16) * 2)    
             mod_freq = 30 + (int(blip_hash[2:4], 16) % 50)     
             mod_index = 20 + (int(blip_hash[4:6], 16) % 30)    
             
