@@ -12,7 +12,7 @@ CENTER = (GRID_SIZE // 2, GRID_SIZE // 2)
 ARCHETYPES = [
     "Recon Drone", "Heavy Cruiser", "Scout Vessel", 
     "Bio-Sign", "Space Debris", "Plasma Cloud", 
-    "Stealth Frigate", "Comet Fragment", "Cat", "Terran", "Zerg", "Protoss"
+    "Stealth Frigate", "Comet Fragment", "Cat", "Terran", "Zerg", "Protoss", "DSL"
 ]
 
 HOSTILITY_MODES = {
