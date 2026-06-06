@@ -12,7 +12,7 @@ CENTER = (GRID_SIZE // 2, GRID_SIZE // 2)
 ARCHETYPES = [
     "Recon Drone", "Heavy Cruiser", "Scout Vessel", 
     "Bio-Sign", "Space Debris", "Plasma Cloud", 
-    "Stealth Frigate", "Comet Fragment"
+    "Stealth Frigate", "Comet Fragment", "Cat", "Terran", "Zerg", "Protoss"
 ]
 
 HOSTILITY_MODES = {
@@ -76,6 +76,14 @@ class RadarOverlay:
         salt = f"{random.random()}{x}{y}"
         blip_hash = hashlib.sha256(salt.encode()).hexdigest()[:10].upper()
         archetype = random.choice(ARCHETYPES)
+
+	# CJK Unified Ideographs hex range used for Hanja
+        start_hex = 0x4E00
+        end_hex = 0x9FFF
+
+	# Generate 4 random characters and join them
+        random_hanja_string = "".join(chr(random.randint(start_hex, end_hex)) for _ in range(4))
+
         
         threat_type = random.choice(["FRIENDLY", "NEUTRAL", "HOSTILE"])
         threat_profile = HOSTILITY_MODES[threat_type]
@@ -85,7 +93,8 @@ class RadarOverlay:
             "hash": blip_hash, 
             "type": archetype, 
             "distance": distance_meters,
-            "threat": threat_profile
+            "threat": threat_profile,
+            "hanja" : random_hanja_string
         }
 
     def play_nextel_chirp(self, blip_hash, threat_label):
@@ -168,7 +177,7 @@ class RadarOverlay:
         blip = self.generate_blip()
         self.log_history.append(blip)
         
-        self.hash_label.config(text=blip["hash"], fg=blip["threat"]["color"])
+        self.hash_label.config(text=blip['hanja'], fg=blip["threat"]["color"])
         
         self.draw_grid_canvas(blip)
         self.play_nextel_chirp(blip["hash"], blip["threat"]["label"])
@@ -182,7 +191,7 @@ class RadarOverlay:
         self.log_box.config(state=tk.DISABLED)
         self.log_box.see(tk.END)
         
-        self.root.after(5000, self.hide_overlay)
+        self.root.after(10000, self.hide_overlay)
         
         next_delay_ms = int(random.uniform(0.0, 120.0) * 1000)
         self.root.after(next_delay_ms, self.update_radar)
