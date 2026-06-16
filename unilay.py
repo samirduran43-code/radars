@@ -79,8 +79,8 @@ class TransparentOverlay:
         new_char = self.get_random_unicode_char()
         self.label.config(text=new_char)
 
-        # Pick a random delay between 0 and 10,000 milliseconds (0 to 10 seconds)
-        random_delay_ms = random.randint(0, 10000)
+        # Pick a random delay between 2.500 and 10,000 milliseconds (2,5 to 10 seconds)
+        random_delay_ms = random.randint(2500, 10000)
 
         # Use Tkinter's non-blocking loop to schedule the next update execution
         self.root.after(random_delay_ms, self.update_character)
